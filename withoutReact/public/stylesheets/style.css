@@ -1,0 +1,21 @@
+/*body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+*/
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: green;
+}
+
+.even.selected td {
+  background-color: rgb(0,0,230); !important;
+}
+
+.odd.selected td {
+  background-color: rgb(0,0,230); !important;
+}

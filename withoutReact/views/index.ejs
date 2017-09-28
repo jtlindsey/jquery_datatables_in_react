@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">  
+    </script>
+
+    <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css">
+
+
+    <!-- <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' /> -->
+    <!-- <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"/></script> -->
+
+
+    <link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css' />
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/DataTables/datatables.min.css"/>    
+    <script type="text/javascript" src="/DataTables/datatables.min.js"></script>
+    
+  </head>
+  <body>
+    <% var data = data %>
+    <h1><%= title %></h1>
+
+    <div class='bootstrap-scope'>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12"> 
+            <h2> Example </h2> 
+
+            <div>Toggle:</div><div id="toggle"></div>
+            
+            <table class="table table-condensed table-bordered table-striped table-hover" id="testtable" width="100%">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Nickname</th>
+                </tr>
+                <tr class="filterTR"><!-- extra header row for search --> 
+                  <th class="search-it"></th>
+                  <th class="search-it"></th> 
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
+
+<script>
+$(document).ready(function($) {
+
+  let names = <%- JSON.stringify(data) %>
+  let tableName = '#testtable';
+
+  // setup search
+  $(`${tableName} thead tr:eq(1) th.search-it`).each( function () {
+    $(this).html( '<input type="text" class="search-column" placeholder="&#xf0b0;" style="font-family: Arial, FontAwesome" />' );
+  });
+
+  // apply search
+  $(`${tableName} thead input.search-column`).on( 'keyup change', function () {
+    table.column( $(this).parent().index()+':visible' )
+      .search( this.value ).draw();
+  });
+
+  
+  let tableBtns = [
+    {
+      text: 'Clear Filters',
+      className: "clr-filters-btn",
+      action: function ( e, dt, node, config ) {
+        // make function clear all text inputs on page via jquery
+        clearfilter()          
+      }
+    },
+    {
+      extend: 'copyHtml5',
+      text: 'COPY',
+    },
+    {
+      extend: 'csvHtml5',
+      text: 'CSV',
+    },
+    {
+      extend: 'excelHtml5',
+      text: 'Excel',
+    },
+    {
+      extend: 'pdfHtml5',
+      text: 'PDF',
+    },
+    {
+      extend: 'print',
+      text: 'Print',
+    }
+  ];
+
+
+  // datatables error handler
+  $.fn.dataTable.ext.errMode = 'throw';//prevents error from popup
+
+  // initialize table
+  let table = $(tableName).DataTable( {
+    dom: 'Bfrti',
+    orderCellsTop: true, //for column search
+    colReorder: true,
+    select: true,
+    keys: true,
+    autoFill: {
+      focus: 'click',
+      alwaysAsk: true
+    },
+    language: {
+      zeroRecords: "No matching records found",
+      emptyTable: "No data available"
+    },
+    scrollX: true,
+    scroller: true,
+    scrollY:        '60vh',
+    scrollCollapse: true,
+    data: names,
+    order: [[ 0, "asc" ]],
+    // order: [[ 0, "desc" ]],
+    columns: [
+      { "data": "name", render: function (data, type, row) {return data;}},
+      { "data": "nickname", render: function (data, type, row) {return data;}},
+    ],
+    buttons: tableBtns,
+    columnDefs: [
+      { targets: 0, width: '1%' }
+      // {
+      //   targets: -1,// removes last column from original view
+      //   visible: false
+      // }
+    ],
+  });
+
+  function clearfilter() {
+    $('.search-it').find('input:text').val('');
+    table
+     .search( '' )
+     .columns().search( '' )
+     .draw();
+  };
+
+
+  new $.fn.dataTable.Buttons( table, {
+    buttons: [
+      {
+        extend: 'columnsToggle',
+        text: 'Toggle Cols',
+      }
+    ]
+  });
+  table.buttons( 1, null ).container().appendTo('#toggle')
+
+});
+</script>
